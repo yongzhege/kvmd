@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PiKVM Debug Page</title>
+  <link rel="stylesheet" href="./share/css/vars.css">
+  <link rel="stylesheet" href="./share/css/main.css">
+  <script src="./share/js/vendor/i18next.min.js"></script>
+  <script src="./share/js/vendor/i18nextHttpBackend.min.js"></script>
+  <script src="./share/js/vendor/i18nextBrowserLanguageDetector.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: var(--cs-window-bg);
+      color: var(--cs-window-fg);
+      padding: 20px;
+      border-radius: 5px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid var(--cs-window-border);
+      border-radius: 4px;
+    }
+    .language-selector {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .language-selector select {
+      padding: 5px;
+      border-radius: 4px;
+      background-color: var(--cs-button-bg-default);
+      color: var(--cs-button-fg-default);
+      border: 1px solid var(--cs-button-border-default);
+      cursor: pointer;
+    }
+    .debug-info {
+      background-color: var(--cs-terminal-bg);
+      color: var(--cs-terminal-fg);
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: var(--cs-button-bg-default);
+      color: var(--cs-button-fg-default);
+      border: 1px solid var(--cs-button-border-default);
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: var(--cs-button-bg-hover);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--cs-window-border);
+    }
+    th {
+      background-color: var(--cs-button-bg-hover);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>PiKVM 调试页面</h1>
+      <p>此页面用于测试和调试国际化功能</p>
+    </div>
+
+    <div class="language-selector">
+      <select id="language-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+      </select>
+      <button onclick="reloadTranslations()">重新加载翻译</button>
+    </div>
+
+    <div class="section">
+      <h2>翻译测试</h2>
+      <table>
+        <tr>
+          <th>键</th>
+          <th>翻译值</th>
+        </tr>
+        <tr>
+          <td>index.title</td>
+          <td id="trans-index-title" data-i18n="index.title">Loading...</td>
+        </tr>
+        <tr>
+          <td>common.login</td>
+          <td id="trans-common-login" data-i18n="common.login">Loading...</td>
+        </tr>
+        <tr>
+          <td>common.logout</td>
+          <td id="trans-common-logout" data-i18n="common.logout">Loading...</td>
+        </tr>
+        <tr>
+          <td>kvm.title</td>
+          <td id="trans-kvm-title" data-i18n="kvm.title">Loading...</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>调试信息</h2>
+      <button onclick="showDebugInfo()">显示调试信息</button>
+      <div id="debug-info" class="debug-info"></div>
+    </div>
+
+    <div class="section">
+      <h2>工具</h2>
+      <button onclick="clearLocalStorage()">清除本地存储</button>
+      <button onclick="navigateToIndex()">返回首页</button>
+    </div>
+  </div>
+
+  <script>
+    // 初始化i18next
+    let i18nInitialized = false;
+
+    function initI18n() {
+      const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+      console.log('基础路径:', basePath);
+      
+      i18next
+        .use(i18nextHttpBackend)
+        .use(i18nextBrowserLanguageDetector)
+        .init({
+          fallbackLng: 'en',
+          supportedLngs: ['en', 'zh'],
+          debug: true,
+          backend: {
+            loadPath: basePath + 'locales/{{lng}}.json'
+          },
+          detection: {
+            order: ['querystring', 'cookie', 'localStorage', 'navigator'],
+            caches: ['localStorage', 'cookie']
+          },
+          interpolation: {
+            escapeValue: false
+          }
+        }, function(err, t) {
+          if (err) {
+            console.error('i18next初始化错误:', err);
+            document.getElementById('debug-info').textContent = JSON.stringify(err, null, 2);
+          } else {
+            console.log('i18next初始化成功，当前语言:', i18next.language);
+            i18nInitialized = true;
+            updateContent();
+            
+            // 设置语言选择器的当前值
+            const langSelect = document.getElementById('language-select');
+            if (langSelect) {
+              langSelect.value = i18next.language;
+            }
+          }
+        });
+    }
+
+    // 更新页面内容
+    function updateContent() {
+      if (!i18nInitialized) {
+        console.warn('i18next尚未初始化，无法更新内容');
+        return;
+      }
+      
+      // 更新HTML的lang属性
+      document.documentElement.lang = i18next.language;
+      
+      // 查找所有带有data-i18n属性的元素
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.textContent = i18next.t(key);
+      });
+    }
+
+    // 语言切换函数
+    function changeLanguage(lng) {
+      console.log('切换语言到:', lng);
+      
+      if (!i18next) {
+        console.error('i18next未初始化，无法切换语言');
+        return;
+      }
+      
+      i18next.changeLanguage(lng).then(() => {
+        console.log('语言已切换到:', i18next.language);
+        updateContent();
+        
+        // 保存语言选择到localStorage
+        localStorage.setItem('i18nextLng', lng);
+      }).catch(error => {
+        console.error('切换语言时出错:', error);
+      });
+    }
+
+    // 重新加载翻译
+    function reloadTranslations() {
+      i18next.reloadResources().then(() => {
+        console.log('翻译资源已重新加载');
+        updateContent();
+      });
+    }
+
+    // 显示调试信息
+    function showDebugInfo() {
+      const debugInfo = {
+        initialized: i18nInitialized,
+        currentLanguage: i18next ? i18next.language : 'unknown',
+        languages: i18next ? i18next.languages : [],
+        translations: i18next ? i18next.store.data : {},
+        localStorage: {}
+      };
+      
+      // 获取相关localStorage内容
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.includes('i18next')) {
+          debugInfo.localStorage[key] = localStorage.getItem(key);
+        }
+      }
+      
+      document.getElementById('debug-info').textContent = JSON.stringify(debugInfo, null, 2);
+    }
+
+    // 清除本地存储
+    function clearLocalStorage() {
+      const i18nKeys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.includes('i18next')) {
+          i18nKeys.push(key);
+        }
+      }
+      
+      i18nKeys.forEach(key => localStorage.removeItem(key));
+      console.log('已清除i18next相关的本地存储项');
+      
+      // 重新加载页面
+      window.location.reload();
+    }
+
+    // 导航到首页
+    function navigateToIndex() {
+      window.location.href = './index.html';
+    }
+
+    // 页面加载时初始化i18next
+    document.addEventListener('DOMContentLoaded', initI18n);
+  </script>
+</body>
+</html> 

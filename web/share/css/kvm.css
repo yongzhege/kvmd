@@ -1,0 +1,109 @@
+.kvm-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.kvm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #2a2a2a;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.kvm-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.kvm-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.kvm-controls button,
+.kvm-controls select {
+    padding: 0.5rem 1rem;
+    background-color: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    color: #ffffff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.kvm-controls button:hover,
+.kvm-controls select:hover {
+    background-color: #4a4a4a;
+}
+
+.kvm-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+#kvm-screen {
+    flex: 1;
+    background-color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.kvm-status {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+.kvm-sidebar {
+    width: 300px;
+    background-color: #2a2a2a;
+    padding: 1rem;
+    border-left: 1px solid #3a3a3a;
+    overflow-y: auto;
+}
+
+.kvm-info,
+.kvm-settings {
+    margin-bottom: 2rem;
+}
+
+.kvm-info h2,
+.kvm-settings h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+}
+
+.setting-group {
+    margin-bottom: 1rem;
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.setting-group select {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    color: #ffffff;
+    border-radius: 4px;
+}
+
+#kvm-status-info {
+    background-color: #3a3a3a;
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: monospace;
+} 

@@ -1,0 +1,34 @@
+{
+  "common": {
+    "login": "登录",
+    "logout": "退出",
+    "username": "用户名",
+    "password": "密码",
+    "submit": "提交",
+    "cancel": "取消"
+  },
+  "kvm": {
+    "title": "KVM控制台",
+    "fullscreen": "全屏",
+    "connection": "连接状态",
+    "quality": "画面质量"
+  },
+  "ipmi": {
+    "title": "IPMI管理",
+    "power": "电源控制",
+    "sensors": "传感器"
+  },
+  "index": {
+    "title": "可观 KVM"
+  },
+  "apps": {
+    "kvm": "KVM控制台",
+    "ipmi": "IPMI监控",
+    "vnc": "VNC远程",
+    "janus": "Janus网关",
+    "janus_static": "Janus静态",
+    "media": "媒体",
+    "webterm": "终端",
+    "logout": "退出"
+  }
+} 

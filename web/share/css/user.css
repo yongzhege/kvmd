@@ -1,0 +1,25 @@
+/* 语言选择器样式 */
+.language-selector {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+#language-select {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* 多语言相关样式 */
+[data-i18n] {
+  transition: opacity 0.3s ease;
+}
+
+.i18n-loading [data-i18n] {
+  opacity: 0.7;
+} 

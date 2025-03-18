@@ -34,7 +34,21 @@ export function main() {
 
 	if (checkBrowser(null, null)) {
 		__setAppText();
+		
+		// 先加载API信息
 		__loadKvmdInfo();
+		
+		// 设置i18next初始化完成事件监听
+		document.addEventListener('i18nextInitialized', function() {
+			console.log('检测到i18next初始化完成，刷新应用按钮');
+			__refreshAppButtons();
+			__setupI18nListeners();
+		});
+		
+		// 如果i18next已经初始化完成，设置语言变化监听
+		if (window.i18next && window.i18next.isInitialized) {
+			__setupI18nListeners();
+		}
 	}
 }
 
@@ -87,6 +101,15 @@ function __showKvmdInfo(info) {
 		});
 	}
 
+	// 保存应用信息到全局变量，以便语言切换时可以刷新
+	window.__kvmdApps = apps;
+	window.__kvmdInfo = info;
+	
+	__renderApps(info, apps);
+}
+
+// 渲染应用按钮
+function __renderApps(info, apps) {
 	let html = "";
 
 	// Don't use this option, it may be removed in any time
@@ -105,7 +128,7 @@ function __showKvmdInfo(info) {
 	}
 
 	if (info.auth.enabled) {
-		html += __makeApp("logout-button", "#", "share/svg/logout.svg", "Logout");
+		html += __makeApp("logout-button", "#", "share/svg/logout.svg", window.i18next ? window.i18next.t("common.logout") : "Logout");
 	}
 
 	$("apps-box").innerHTML = `<ul id="apps">${html}</ul>`;
@@ -123,17 +146,65 @@ function __showKvmdInfo(info) {
 	}
 }
 
+// 刷新应用按钮（用于语言变化时）
+function __refreshAppButtons() {
+	if (window.__kvmdInfo && window.__kvmdApps) {
+		__renderApps(window.__kvmdInfo, window.__kvmdApps);
+	}
+}
+
 function __makeApp(id, path, icon, name) {
 	// Tailing slash in href is added to avoid Nginx 301 redirect
 	// when the location doesn't have tailing slash: "foo -> foo/".
 	// Reverse proxy over PiKVM can be misconfigured to handle this.
 	let e_add_id = (id ? `id="${tools.escape(id)}"` : "");
+	
+	// 获取应用程序标识符（路径的最后一部分）
+	let appId = "";
+	
+	// 特殊情况处理
+	if (path === "#") {
+		// 登出按钮
+		appId = "logout";
+		if (window.i18next && window.i18next.isInitialized) {
+			return `<li>
+				<div ${e_add_id} class="app">
+					<a href="${tools.escape(ROOT_PREFIX + path)}/">
+						<div>
+							<img class="svg-gray" src="${tools.escape(ROOT_PREFIX + icon)}">
+							${tools.escape(window.i18next.t("common.logout"))}
+						</div>
+					</a>
+				</div>
+			</li>`;
+		}
+	} else if (path.includes('extras/webterm')) {
+		// webterm特殊处理
+		appId = "webterm";
+	} else {
+		// 常规应用，提取路径最后一部分
+		appId = path;
+		if (appId.includes('/')) {
+			appId = appId.split('/').pop();
+		}
+	}
+	
+	// 尝试使用i18next翻译
+	let displayName = name;
+	if (window.i18next && window.i18next.isInitialized && appId) {
+		// 尝试从apps命名空间获取翻译
+		const translated = window.i18next.t(`apps.${appId}`, { defaultValue: name });
+		if (translated !== `apps.${appId}`) {
+			displayName = translated;
+		}
+	}
+	
 	return `<li>
 		<div ${e_add_id} class="app">
 			<a href="${tools.escape(ROOT_PREFIX + path)}/">
 				<div>
 					<img class="svg-gray" src="${tools.escape(ROOT_PREFIX + icon)}">
-					${tools.escape(name)}
+					${tools.escape(displayName)}
 				</div>
 			</a>
 		</div>
@@ -153,5 +224,14 @@ function __logout() {
 				wm.error("Logout error", http.responseText);
 				break;
 		}
+	});
+}
+
+// 设置i18next监听器
+function __setupI18nListeners() {
+	// 监听语言变化事件
+	window.i18next.on('languageChanged', function() {
+		// 语言变化时重新渲染按钮
+		__refreshAppButtons();
 	});
 }

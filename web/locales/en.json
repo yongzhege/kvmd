@@ -1,0 +1,34 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "kvm": {
+    "title": "KVM Console",
+    "fullscreen": "Fullscreen",
+    "connection": "Connection Status",
+    "quality": "Display Quality"
+  },
+  "ipmi": {
+    "title": "IPMI Management",
+    "power": "Power Control",
+    "sensors": "Sensors"
+  },
+  "index": {
+    "title": "The Open Source KVM over IP"
+  },
+  "apps": {
+    "kvm": "KVM",
+    "ipmi": "IPMI",
+    "vnc": "VNC",
+    "janus": "Janus",
+    "janus_static": "Janus Static",
+    "media": "Media",
+    "webterm": "Terminal",
+    "logout": "Logout"
+  }
+} 

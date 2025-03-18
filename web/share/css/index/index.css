@@ -95,3 +95,17 @@ tr.server {
 		display: none;
 	}
 }
+
+.language-selector {
+	margin-top: 15px;
+	text-align: center;
+}
+
+.language-selector select {
+	padding: 5px;
+	border-radius: 4px;
+	background-color: var(--cs-button-bg-default);
+	color: var(--cs-button-fg-default);
+	border: 1px solid var(--cs-button-border-default);
+	cursor: pointer;
+}

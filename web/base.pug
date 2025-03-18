@@ -43,7 +43,7 @@ block _vars_dynamic
 		png_dir = `${share_dir}/png`
 
 
-html(lang="en")
+html(lang=lang || "en")
 	head
 		meta(charset="utf-8")
 		title #{title}
@@ -59,6 +59,12 @@ html(lang="en")
 		each name in ["vars", "main"].concat(css_list).concat(["user"])
 			link(rel="stylesheet" href=`${css_dir}/${name}.css`)
 
+		//- 加载本地i18next相关库
+		script(src=`${js_dir}/vendor/i18next.min.js`)
+		script(src=`${js_dir}/vendor/i18nextHttpBackend.min.js`)
+		script(src=`${js_dir}/vendor/i18nextBrowserLanguageDetector.min.js`)
+		script(src=`${js_dir}/i18n.js`)
+
 		if main_js
 			script(type="module")
 				| import {setRootPrefix} from "#{js_dir}/vars.js";
@@ -67,4 +73,15 @@ html(lang="en")
 				| main();
 
 	body(class=body_class)
+		div.language-selector
+			select#language-select(onchange="changeLanguage(this.value)")
+				option(value="en") English
+				option(value="zh") 中文
 		block body
+
+		script.
+			function changeLanguage(lng) {
+				i18next.changeLanguage(lng).then(() => {
+					location.reload();
+				});
+			}
